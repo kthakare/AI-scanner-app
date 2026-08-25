@@ -10,7 +10,7 @@ import org.junit.Test
 class ScanNamingTest {
     @Test
     fun defaultTitleUsesUtcTimestamp() {
-        val millis = 1_777_075_200_000L // 2026-04-25 12:00:00 UTC
+        val millis = 1_777_118_400_000L // 2026-04-25 12:00:00 UTC
         val title = ScanNaming.defaultTitle(
             epochMillis = millis,
             locale = Locale.US,
