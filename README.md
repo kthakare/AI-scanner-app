@@ -26,7 +26,19 @@ The scanner UI and camera permission flow are provided by Google Play services. 
 3. Select a **Google Play** device or emulator (Play Store icon on the system image).
 4. Run the **`app`** configuration (toolbar, or Run → `app`).
 
-The shared run configuration is [`.idea/runConfigurations/app.xml`](.idea/runConfigurations/app.xml). If it is missing, create **Run → Edit Configurations → + → Android App** with:
+The shared run configuration is [`.idea/runConfigurations/app.xml`](.idea/runConfigurations/app.xml).
+
+### Error: Module not specified
+
+The **Module** dropdown is empty or the saved name does not match until Gradle has imported `:app`.
+
+1. Confirm you opened the **repo root** (`settings.gradle.kts` is visible in the project view, not only the `app` folder).
+2. **File → Sync Project with Gradle Files**. Wait until it finishes with no errors. Gradle JDK must be **17**.
+3. **Run → Edit Configurations…** → select **`app`** (or **+ → Android App** if it is gone).
+4. Set **Module** to **`app`**. Studio may show it as `AIScanner.app` or `app.main` — pick the Android application module, not a test module.
+5. **Launch:** Default Activity. **Deploy:** Default APK. Apply, then Run.
+
+If Module is still empty, Gradle never created the Android module: fix the sync error in the Build window, or **File → Invalidate Caches → Invalidate and Restart**, then sync again.
 
 | Field | Value |
 | --- | --- |
