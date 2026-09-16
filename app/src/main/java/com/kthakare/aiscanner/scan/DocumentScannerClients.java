@@ -4,11 +4,6 @@ import com.google.mlkit.vision.documentscanner.GmsDocumentScanner;
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions;
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning;
 
-/**
- * Builds ML Kit scanner options in Java. Kotlin 2.0 (K2) cannot resolve
- * {@link GmsDocumentScannerOptions.Builder#build()} after the varargs
- * {@code setResultFormats} chain.
- */
 final class DocumentScannerClients {
     private DocumentScannerClients() {}
 
