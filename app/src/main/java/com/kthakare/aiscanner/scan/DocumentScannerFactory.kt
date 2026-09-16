@@ -7,16 +7,15 @@ import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 
 object DocumentScannerFactory {
     fun create(): GmsDocumentScanner {
-        val options = GmsDocumentScannerOptions.Builder()
+        val builder = GmsDocumentScannerOptions.Builder()
             .setGalleryImportAllowed(true)
             .setPageLimit(10)
-            .setResultFormats(
-                GmsDocumentScannerOptions.RESULT_FORMAT_JPEG,
-                GmsDocumentScannerOptions.RESULT_FORMAT_PDF,
-            )
             .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
-            .build()
-        return GmsDocumentScanning.getClient(options)
+        builder.setResultFormats(
+            GmsDocumentScannerOptions.RESULT_FORMAT_JPEG,
+            GmsDocumentScannerOptions.RESULT_FORMAT_PDF,
+        )
+        return GmsDocumentScanning.getClient(builder.build())
     }
 
     fun startScan(activity: Activity, scanner: GmsDocumentScanner = create()) =
