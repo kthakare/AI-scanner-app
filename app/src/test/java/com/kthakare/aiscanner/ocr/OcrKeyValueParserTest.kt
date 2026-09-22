@@ -44,6 +44,24 @@ class OcrKeyValueParserTest {
     }
 
     @Test
+    fun parsesCommaSeparatedPairsOnOneLine() {
+        val fields = OcrKeyValueParser.parse("name : abc, address: xyz", pageNumber = 1)
+        assertEquals(
+            listOf(
+                OcrField("name", "abc", 1),
+                OcrField("address", "xyz", 1),
+            ),
+            fields,
+        )
+    }
+
+    @Test
+    fun keepsCommaInsideASingleValue() {
+        val fields = OcrKeyValueParser.parse("Address: 123 Main St, Apt 4", pageNumber = 1)
+        assertEquals(listOf(OcrField("Address", "123 Main St, Apt 4", 1)), fields)
+    }
+
+    @Test
     fun unlabeledLinesBecomeNumberedRows() {
         val fields = OcrKeyValueParser.parse(
             """

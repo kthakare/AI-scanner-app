@@ -3,10 +3,12 @@ package com.kthakare.aiscanner.ui.detail
 import android.content.ClipData
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +40,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,6 +54,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -175,6 +179,12 @@ fun ScanDetailScreen(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 } else {
+                    Text(
+                        "${extraction.fields.size} fields",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(8.dp))
                     KeyValueTable(fields = extraction.fields)
                 }
                 Spacer(Modifier.height(8.dp))
@@ -238,6 +248,7 @@ private fun KeyValueTable(fields: List<OcrField>) {
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = 12.dp, vertical = 8.dp),
                 )
                 HorizontalDivider()
@@ -259,18 +270,23 @@ private fun KeyValueHeaderRow() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+            .height(IntrinsicSize.Min)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Text(
             text = "Key",
-            modifier = Modifier.weight(0.4f),
+            modifier = Modifier
+                .weight(0.4f)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
         )
+        VerticalDivider(color = MaterialTheme.colorScheme.outline)
         Text(
             text = "Value",
-            modifier = Modifier.weight(0.6f),
+            modifier = Modifier
+                .weight(0.6f)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.SemiBold,
         )
@@ -282,18 +298,22 @@ private fun KeyValueDataRow(field: OcrField) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+            .height(IntrinsicSize.Min),
     ) {
         Text(
             text = field.key,
-            modifier = Modifier.weight(0.4f),
+            modifier = Modifier
+                .weight(0.4f)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
         )
+        VerticalDivider(color = MaterialTheme.colorScheme.outline)
         Text(
             text = field.value,
-            modifier = Modifier.weight(0.6f),
+            modifier = Modifier
+                .weight(0.6f)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             style = MaterialTheme.typography.bodyMedium,
         )
     }
@@ -352,4 +372,17 @@ private fun shareOrOpenPdf(context: android.content.Context, document: ScanDocum
         }
     }
     context.startActivity(Intent.createChooser(intent, document.title))
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun KeyValueTablePreview() {
+    MaterialTheme {
+        KeyValueTable(
+            fields = listOf(
+                OcrField("name", "abc", 1),
+                OcrField("address", "xyz", 1),
+            ),
+        )
+    }
 }

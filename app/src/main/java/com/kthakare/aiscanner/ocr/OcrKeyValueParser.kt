@@ -32,9 +32,12 @@ data class OcrExtraction(
 }
 
 object OcrKeyValueParser {
-    private val sameLineSeparator = Regex("""^(.{1,80}?)\s*[:：=|]\s+(.+)$""")
+    private val sameLineSeparator = Regex("""^(.{1,80}?)\s*[:：=|]\s*(.+)$""")
     private val trailingLabel = Regex("""^(.{1,80}?)[:：]\s*$""")
     private val multiSpace = Regex("""\s{2,}""")
+    private val inlinePair = Regex(
+        """([A-Za-z][\w .#/_-]{0,40}?)\s*[:：=]\s*([^,]+?)(?=\s*,\s*[A-Za-z][\w .#/_-]{0,40}?\s*[:：=]|$)""",
+    )
 
     fun parse(pageText: String, pageNumber: Int): List<OcrField> {
         val lines = pageText
@@ -49,9 +52,14 @@ object OcrKeyValueParser {
         var unlabeled = 0
         while (index < lines.size) {
             val line = lines[index]
+            val inlinePairs = parseInlinePairs(line, pageNumber)
             val stacked = trailingLabel.matchEntire(line)
             val sameLine = sameLineSeparator.matchEntire(line)
             when {
+                inlinePairs.size >= 2 -> {
+                    fields += inlinePairs
+                    index += 1
+                }
                 stacked != null -> {
                     val key = stacked.groupValues[1].trim()
                     val next = lines.getOrNull(index + 1)
@@ -100,5 +108,18 @@ object OcrKeyValueParser {
             }
         }
         return fields
+    }
+
+    private fun parseInlinePairs(line: String, pageNumber: Int): List<OcrField> {
+        if (!line.contains(',')) return emptyList()
+        val matches = inlinePair.findAll(line).toList()
+        if (matches.size < 2) return emptyList()
+        return matches.map { match ->
+            OcrField(
+                key = match.groupValues[1].trim(),
+                value = match.groupValues[2].trim(),
+                pageNumber = pageNumber,
+            )
+        }
     }
 }
