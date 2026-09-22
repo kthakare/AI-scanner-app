@@ -8,7 +8,7 @@ Native Android document scanner built with Kotlin, Jetpack Compose, and Google M
 - Import from the photo gallery
 - Local library of saved scans (JPEG pages + PDF)
 - Rename, share, open, and delete scans
-- On-device OCR with copy-to-clipboard (ML Kit Text Recognition)
+- On-device OCR shown as a Key / Value table, with copy-to-clipboard (ML Kit Text Recognition)
 
 The scanner UI and camera permission flow are provided by Google Play services. The app does not declare a camera permission.
 
@@ -37,6 +37,13 @@ The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
 1. Tap **Scan** on the library screen.
 2. Capture or import up to 10 pages, then accept the ML Kit preview.
-3. Open a saved scan to share or view the PDF, rename it, extract text, or delete it.
+3. Open a saved scan to share or view the PDF, rename it, extract text as a Key/Value table, or delete it.
+
+Example: a page that reads `name : abc, address: xyz` is shown as:
+
+| Key | Value |
+| --- | --- |
+| name | abc |
+| address | xyz |
 
 Scans are stored only on the device under the app’s private files directory.
