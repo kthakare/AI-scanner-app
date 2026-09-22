@@ -3,6 +3,7 @@ package com.kthakare.aiscanner.ui.detail
 import android.content.ClipData
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -48,11 +50,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.kthakare.aiscanner.data.ScanDocument
+import com.kthakare.aiscanner.ocr.OcrField
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -161,19 +165,26 @@ fun ScanDetailScreen(
                 Spacer(Modifier.height(12.dp))
                 CircularProgressIndicator()
             }
-            uiState.extractedText?.let { text ->
+            uiState.extraction?.let { extraction ->
                 Spacer(Modifier.height(16.dp))
-                Text("Recognized text", style = MaterialTheme.typography.titleMedium)
+                Text("Recognized data", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
-                Text(text, style = MaterialTheme.typography.bodyMedium)
+                if (extraction.fields.isEmpty()) {
+                    Text(
+                        extraction.rawText.ifBlank { "No text found." },
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                } else {
+                    KeyValueTable(fields = extraction.fields)
+                }
                 Spacer(Modifier.height(8.dp))
                 TextButton(
                     onClick = {
-                        clipboard.setText(AnnotatedString(text))
+                        clipboard.setText(AnnotatedString(extraction.toCopyText()))
                         Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
                     },
                 ) {
-                    Text("Copy text")
+                    Text("Copy table")
                 }
             }
         }
@@ -206,6 +217,84 @@ fun ScanDetailScreen(
             dismissButton = {
                 TextButton(onClick = { showDelete = false }) { Text("Cancel") }
             },
+        )
+    }
+}
+
+@Composable
+private fun KeyValueTable(fields: List<OcrField>) {
+    val showPage = fields.any { it.pageNumber > 1 }
+    val grouped = fields.groupBy { it.pageNumber }.toSortedMap()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(8.dp)),
+    ) {
+        grouped.forEach { (page, pageFields) ->
+            if (showPage) {
+                Text(
+                    text = "Page $page",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                )
+                HorizontalDivider()
+            }
+            KeyValueHeaderRow()
+            HorizontalDivider()
+            pageFields.forEachIndexed { index, field ->
+                KeyValueDataRow(field)
+                if (index != pageFields.lastIndex) {
+                    HorizontalDivider()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun KeyValueHeaderRow() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(
+            text = "Key",
+            modifier = Modifier.weight(0.4f),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+        )
+        Text(
+            text = "Value",
+            modifier = Modifier.weight(0.6f),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
+
+@Composable
+private fun KeyValueDataRow(field: OcrField) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(
+            text = field.key,
+            modifier = Modifier.weight(0.4f),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+        )
+        Text(
+            text = field.value,
+            modifier = Modifier.weight(0.6f),
+            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }
