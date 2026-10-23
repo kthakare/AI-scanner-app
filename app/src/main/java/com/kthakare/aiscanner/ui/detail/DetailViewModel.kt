@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.kthakare.aiscanner.data.ScanDocument
 import com.kthakare.aiscanner.data.ScanRepository
 import com.kthakare.aiscanner.ocr.OcrAnalyzer
+import com.kthakare.aiscanner.ocr.OcrExtraction
 import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class DetailUiState(
-    val extractedText: String? = null,
+    val extraction: OcrExtraction? = null,
     val isExtracting: Boolean = false,
     val error: String? = null,
     val deleted: Boolean = false,
@@ -51,8 +52,8 @@ class DetailViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isExtracting = true, error = null)
             runCatching { ocrAnalyzer.recognize(repository.pageFiles(document)) }
-                .onSuccess { text ->
-                    _uiState.value = _uiState.value.copy(extractedText = text, isExtracting = false)
+                .onSuccess { extraction ->
+                    _uiState.value = _uiState.value.copy(extraction = extraction, isExtracting = false)
                 }
                 .onFailure { error ->
                     _uiState.value = _uiState.value.copy(
