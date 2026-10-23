@@ -9,8 +9,42 @@ data class OcrField(
 data class OcrExtraction(
     val fields: List<OcrField>,
     val rawText: String,
+    val headerFields: List<OcrField> = emptyList(),
+    val tables: List<OcrTable> = emptyList(),
+    val footerFields: List<OcrField> = emptyList(),
 ) {
+    fun hasInvoiceLayout(): Boolean = tables.isNotEmpty()
+
     fun toCopyText(): String {
+        if (hasInvoiceLayout()) {
+            return buildString {
+                if (headerFields.isNotEmpty()) {
+                    append("Key\tValue\n")
+                    headerFields.forEach { field ->
+                        append(field.key)
+                        append('\t')
+                        append(field.value.replace('\n', ' '))
+                        append('\n')
+                    }
+                    append('\n')
+                }
+                tables.forEach { table ->
+                    append(table.columns.joinToString("\t"))
+                    append('\n')
+                    table.rows.forEach { row ->
+                        append(row.joinToString("\t") { it.replace('\n', ' ') })
+                        append('\n')
+                    }
+                    append('\n')
+                }
+                footerFields.forEach { field ->
+                    append(field.key)
+                    append('\t')
+                    append(field.value.replace('\n', ' '))
+                    append('\n')
+                }
+            }.trimEnd()
+        }
         if (fields.isEmpty()) return rawText
         val includePage = fields.any { it.pageNumber > 1 }
         return buildString {

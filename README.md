@@ -46,4 +46,6 @@ Example: a page that reads `name : abc, address: xyz` is shown as:
 | name | abc |
 | address | xyz |
 
+Invoices (ForceStore / sales invoices) keep **invoice number and address at the top**, then an **Items** table with columns such as Qty and Subtotal, then **Totals**.
+
 Scans are stored only on the device under the app’s private files directory.
